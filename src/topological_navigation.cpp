@@ -7,8 +7,6 @@
 #include <vector>
 #include <yaml-cpp/yaml.h>
 
-// #include <stdbool.h>
-
 #define ABS(a) (((a) < 0) ? -(a) : (a))
 
 using namespace std;
