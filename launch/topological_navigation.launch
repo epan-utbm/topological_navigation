@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+  <!--load map with map_server -->
+  <arg name="map_file" default="$(find topological_navigation)/maps/my_map.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)"/>
+  
+  <node pkg="topological_navigation" type="topological_navigation" name="topological_navigation" output="screen" respawn="false">
+    <param name="waypoint_file" type="string" value="$(find topological_navigation)/waypoints/waypoints.yaml"/>
+  </node>
+</launch>

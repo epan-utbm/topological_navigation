@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(topological_navigation)
+
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  nav_msgs
+  geometry_msgs
+)
+
+include_directories(${catkin_INCLUDE_DIRS})
+
+catkin_package()
+
+add_executable(topological_navigation src/topological_navigation.cpp)
+target_link_libraries(topological_navigation ${catkin_LIBRARIES} yaml-cpp)
+if(catkin_EXPORTED_TARGETS)
+  add_dependencies(topological_navigation ${catkin_EXPORTED_TARGETS})
+endif()

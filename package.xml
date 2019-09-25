@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>topological_navigation</name>
+  <version>0.0.1</version>
+  <description>Given the starting and ending points, use the Dijkstra algorithm to find the shortest path within the list of waypoints.</description>
+  <maintainer email="thomas.duvinage@utbm.fr">Thomas Duvinage</maintainer>
+  <license>BSD</license>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+</package>

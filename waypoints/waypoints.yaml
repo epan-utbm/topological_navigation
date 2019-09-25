@@ -1,0 +1,85 @@
+waypoints:
+- frame_id: map
+  name: 3_4
+  pose:
+    orientation:
+      w: 1
+      x: 0
+      y: 0
+      z: 0
+    position:
+      x: 3
+      y: 4
+      z: 0.0
+- frame_id: map
+  name: 40_4
+  pose:
+    orientation:
+      w: 1
+      x: 0
+      y: 0
+      z: 0
+    position:
+      x: 40
+      y: 4
+      z: 0.0
+- frame_id: map
+  name: 20_60
+  pose:
+    orientation:
+      w: 1
+      x: 0
+      y: 0
+      z: 0
+    position:
+      x: 20
+      y: 60
+      z: 0.0
+- frame_id: map
+  name: 40_40
+  pose:
+    orientation:
+      w: 1
+      x: 0
+      y: 0
+      z: 0
+    position:
+      x: 40
+      y: 40
+      z: 0.0
+- frame_id: map
+  name: 20_20
+  pose:
+    orientation:
+      w: 1
+      x: 0
+      y: 0
+      z: 0
+    position:
+      x: 20
+      y: 20
+      z: 0.0
+- frame_id: map
+  name: 30_20
+  pose:
+    orientation:
+      w: 1
+      x: 0
+      y: 0
+      z: 0
+    position:
+      x: 30
+      y: 20
+      z: 0.0
+- frame_id: map
+  name: 4_40
+  pose:
+    orientation:
+      w: 1
+      x: 0
+      y: 0
+      z: 0
+    position:
+      x: 4
+      y: 40
+      z: 0.0
