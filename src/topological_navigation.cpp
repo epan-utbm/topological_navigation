@@ -267,5 +267,5 @@ void queryPath(int s, int e, vector<int> &path) {
     return;
   }
   queryPath(s, path[e], path);
-  cerr << e << endl;
+  cerr << e << " ";
 }
