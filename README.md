@@ -31,7 +31,15 @@ To solve it we though about few possiblities :
  -  You can simulate a circle around the "activated" pixel to know if there is a wall.
  -  You can also make your line larger so it will detect the wall. 
 
+### Dijkstra algorithm
 
+To find the shortest path between the starting and ending point we decided to implement Dijkstra algorithm.
+You can find many informations on this algorithm online :
+
+ - https://www-m9.ma.tum.de/graph-algorithms/spp-dijkstra/index_en.html
+
+### Sources
+ - https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 
 
 
