@@ -28,9 +28,8 @@ Logically the line between the waypoint A --> B equal the line B --> A.
 But in fact due to the Bresemham algorithm you can ran into few problems. Because if the algorithm detect a wall between A --> B but not between B --> A they will be a non-sense.
 
 To solve it we though about few possiblities :
-
-⋅⋅* You can simulate a circle around the "activated" pixel to know if there is a wall.
-⋅⋅* You can also make your line larger so it will detect the wall. 
+ -  You can simulate a circle around the "activated" pixel to know if there is a wall.
+ -  You can also make your line larger so it will detect the wall. 
 
 
 
