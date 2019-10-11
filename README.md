@@ -1,6 +1,6 @@
-# topological_navigation
+# Topological_navigation
 
-#### How it works ?
+### How it works ?
 The goal of this package is to define waypoints is your map via waypoints generator package [https://github.com/epan-utbm/waypoint_generator].
 
 When you are done with that you can move on the topological package which is a service. 
@@ -19,7 +19,7 @@ To do this task you can use the algorithm you want by passing it name in the fol
 For your case we implemented Bresemham algorithm. 
 
 
-#### Bresemham algorithm 
+### Bresemham algorithm 
 This algorithm draw an invisible line passing through pixels between two waypoints. If one pixel is occupied (100) or unknown cell (-1), we can seay that there is a wall.
 
 So we simulate all trajectories possibilities for each waypoints.
