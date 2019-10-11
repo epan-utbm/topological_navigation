@@ -1,4 +1,4 @@
-# Topological_navigation
+# A High-level Implementation of Topological Navigation with ROS
 
 ### How it works ?
 The goal of this package is to define waypoints in your map via waypoints generator package [https://github.com/epan-utbm/waypoint_generator].
