@@ -4,13 +4,13 @@
 The goal of this package is to define waypoints in your map via waypoints generator package [https://github.com/epan-utbm/waypoint_generator].
 
 When you are done with that you can move on the topological_navigation package which is a service. 
-To make it works you have to send the starting and ending point and the waypoints file you have created to it.
+To make it works you have to send the starting and ending point and the waypoints you have created to it.
 
-After that it will find the shortest path to go from the starting point to the ending via differents waypoints.
+After that it will find the shortest path to go from the starting point to the ending via selected waypoints.
 
-For that it needs to find links betwenn all waypoints. In other words, is there a wall between two waypoints ?
+For that it needs to find links (i.e. costs) between the waypoints. In other words, is there any obstacles between two waypoints?
 
-To do this task you can use the algorithm you want by passing it name in the following line(66) :
+To do so you can use the algorithm you want by passing it name in the following line(66) :
 
 ```c
     private_nh.param<string>("path_planning", path_planning, "Bresenham");
