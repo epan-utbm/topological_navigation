@@ -3,6 +3,10 @@
 #include <nav_msgs/GetMap.h>
 #include <geometry_msgs/Point.h>
 
+
+#include "topological_navigation/SE_points.h"
+#include "topological_navigation/Path.h"
+
 // CPP
 #include <vector>
 #include <yaml-cpp/yaml.h>
@@ -14,9 +18,14 @@ using namespace std;
 int rows_, cols_;
 double mapResolution_;
 vector<vector<int> > grid_;
+vector<int> path;
+geometry_msgs::Point starting, ending;
+vector<geometry_msgs::Point> waypoints;
 
 bool requestMap(ros::NodeHandle &nh);
 void readMap(const nav_msgs::OccupancyGrid &map);
+bool get(topological_navigation::SE_points::Request  &req,topological_navigation::SE_points::Response &res);
+bool send(topological_navigation::Path::Request  &req,topological_navigation::Path::Response &res);
 void printGrid();
 
 bool getWaypoints(string &filename, vector<geometry_msgs::Point> &waypoints);
@@ -37,8 +46,7 @@ int main(int argc, char** argv) {
   string waypoint_file;
   private_nh.param<string>("waypoint_file", waypoint_file, "");
   
-  geometry_msgs::Point starting, ending;
-  vector<geometry_msgs::Point> waypoints;
+  
   
   if(!waypoint_file.empty()) { // static waypoint list, best for the test
     if(!getWaypoints(waypoint_file, waypoints)) {
@@ -49,7 +57,9 @@ int main(int argc, char** argv) {
     ending.x = 100;  ending.y = 10;   ending.z = 0;
   }
   
-  // dynamic waypoint list, best for the competition
+  
+  ros::ServiceServer service = nh.advertiseService("get_points", get);
+
   // TODO: get starting and ending points, as well as waypoints list via rosservice
   // TODO: send the path (a list of waypoints joins the start and end points) back to the caller (still via rosservice)
 
@@ -66,55 +76,37 @@ int main(int argc, char** argv) {
   
   vector<vector<int> > waypoints_link(waypoints.size());
   for(int i = 0; i < waypoints.size(); i++) {
-    /****** Question for Toma ******/
-    /* The cost matrix should be symmetrical.
-       It saves the computational resource and that's why we need to
-       "complement the cost matrix" at the end of this loop
-    */
-    
-    //for(int j = 0; j <= i; j++) {
 
-    /* However, if we calculate the cost for both directions,
-       i.e. A -> B and B -> A, We actually didn't get a symmetric matrix, e.g:
-       0	37	-	-	17	27	-	7	-	
-       37	0	-	-	20	16	-	30	-	
-       -	-	0	-	-	-	-	-	-	
-       37	-	-	0	20	-	36	30	-	
-       17	20	-	-	0	10	-	10	-	
-       27	16	-	-	10	0	26	20	-	
-       -	-	-	-	-	26	0	-	-	
-       7	30	-	-	10	20	-	0	-	
-       -	-	-	-	-	-	-	-	0
-       So Toma could you help me to find out the pb?
-    */
     for(int j = 0; j < waypoints.size(); j++) {
       if(j == i) {
-	waypoints_link[i].push_back(0); // 0 is the cost to itself
+	      waypoints_link[i].push_back(0); // 0 is the cost to itself
       } else {
-	// TODO: Select different path-finding algorithms by the parameter
-	if(path_planning.compare("Bresenham") == 0) {
-	  distance = BresenhamPlanner(waypoints[i], waypoints[j]);
-	} else if(path_planning.compare("Astar") == 0) {
-	  // TODO
-	} else if(path_planning.compare("Nathan") == 0) {
-	  // TODO
-	}
-	waypoints_link[i].push_back(distance);
+        // TODO: Select different path-finding algorithms by the parameter
+      if(path_planning.compare("Bresenham") == 0) {
+        distance = BresenhamPlanner(waypoints[i], waypoints[j]);
+      } else if(path_planning.compare("Astar") == 0) {
+        // TODO
+      } else if(path_planning.compare("Nathan") == 0) {
+        // TODO
+      }
+      waypoints_link[i].push_back(distance);
       }
       if(waypoints_link[i][j] == INT_MAX) {
-	cerr << "-\t";
+	      cerr << "-\t";
       } else {
-	cerr << waypoints_link[i][j] << "\t";
+	      cerr << waypoints_link[i][j] << "\t";
       }
     }
     cerr << endl;
   }
-  // TODO: complement the cost matrix
 
-  vector<int> path(waypoints.size());
+  path.resize(waypoints.size());
   DijkstraPlanner(waypoints.size()-2, waypoints_link, path);
   queryPath(waypoints.size()-2, waypoints.size()-1, path);
+
+  ros::ServiceServer path_service = nh.advertiseService("get_path", send);
   
+  ros::spin();
   return 0;
 }
 
@@ -268,4 +260,27 @@ void queryPath(int s, int e, vector<int> &path) {
   }
   queryPath(s, path[e], path);
   cerr << e << " ";
+}
+
+
+bool get(topological_navigation::SE_points::Request  &req,topological_navigation::SE_points::Response &res)
+{
+  starting.x = req.starting.x;  ending.x = req.ending.x;
+  starting.y = req.starting.y;  ending.y = req.ending.y;
+  starting.z = req.starting.z;  ending.z = req.ending.z;
+  ROS_INFO("starting_x = %f   starting_y = %f   starting_z = %f\n",req.starting.x,req.starting.y,req.starting.z);
+
+  return true;
+}
+
+bool send(topological_navigation::Path::Request  &req,topological_navigation::Path::Response &res)
+{
+
+  res.path.resize(path.size());
+
+  for(int i = 0; i < path.size(); i++){
+    res.path[i] = path[i];
+    ROS_INFO("Sending back reponse [%ld]", res.path[i]);
+  }
+  return true;
 }
