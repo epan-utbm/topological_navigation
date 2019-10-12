@@ -10,7 +10,7 @@ After that it will find the shortest path to go from the starting point to the e
 
 For that it needs to find links (i.e. costs) between the waypoints. In other words, is there any obstacles between two waypoints?
 
-To do so you can use the algorithm you want by passing it name in the following line(66) :
+To do so you can use the algorithm you want by passing it name in the following line :
 
 ```c
     private_nh.param<string>("path_planning", path_planning, "Bresenham");
