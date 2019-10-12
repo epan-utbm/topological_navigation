@@ -3,9 +3,9 @@
 ### How to launch it ?
 
 To launch the package you have to open 3 terminals:
- 1. roscore
- 2. roslaunch topological_navigation topological_navigation.launch
- 3. rosrun topological_navigation send_data
+ 1. ```$ roscore```
+ 2. ```$ roslaunch topological_navigation topological_navigation.launch```
+ 3. ```$ rosrun topological_navigation send_data
  
 ### How it works ?
 The goal of this package is to define waypoints in your map via waypoints generator package [https://github.com/epan-utbm/waypoint_generator].
