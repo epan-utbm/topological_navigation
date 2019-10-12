@@ -60,10 +60,6 @@ int main(int argc, char** argv) {
   
   ros::ServiceServer service = nh.advertiseService("get_points", get);
 
-  // TODO: get starting and ending points, as well as waypoints list via rosservice
-  // TODO: send the path (a list of waypoints joins the start and end points) back to the caller (still via rosservice)
-
-
   // Use path-finding algorithms to establish connections between waypoints (i.e. costs)
   string path_planning;
   private_nh.param<string>("path_planning", path_planning, "Bresenham");
