@@ -3,7 +3,7 @@
 #include <nav_msgs/GetMap.h>
 #include <geometry_msgs/Point.h>
 
-
+//Rosservice
 #include "topological_navigation/SE_points.h"
 #include "topological_navigation/Path.h"
 
@@ -30,8 +30,8 @@ void printGrid();
 
 bool getWaypoints(string &filename, vector<geometry_msgs::Point> &waypoints);
 int BresenhamPlanner(geometry_msgs::Point &a, geometry_msgs::Point &b); // local path planner
-void DijkstraPlanner(int s, vector<vector<int> > &links, vector<int> &path); // global path planner
-void queryPath(int s, int e, vector<int> &path);
+void DijkstraPlanner(int s, vector<vector<int> > &links); // global path planner
+void queryPath(int s, int e);
 
 int main(int argc, char** argv) {
   ros::init(argc, argv,"topological_navigation");
@@ -52,12 +52,10 @@ int main(int argc, char** argv) {
     if(!getWaypoints(waypoint_file, waypoints)) {
       exit(-1);
     }
-    
-    starting.x = 10; starting.y = 10; starting.z = 0;
-    ending.x = 100;  ending.y = 10;   ending.z = 0;
   }
   
   
+  //Receive the starting and ending via rosservice
   ros::ServiceServer service = nh.advertiseService("get_points", get);
 
   // Use path-finding algorithms to establish connections between waypoints (i.e. costs)
@@ -97,9 +95,10 @@ int main(int argc, char** argv) {
   }
 
   path.resize(waypoints.size());
-  DijkstraPlanner(waypoints.size()-2, waypoints_link, path);
-  queryPath(waypoints.size()-2, waypoints.size()-1, path);
+  DijkstraPlanner(waypoints.size()-2, waypoints_link);
+  queryPath(waypoints.size()-2, waypoints.size()-1);
 
+  //Sending back the path via the rosservice
   ros::ServiceServer path_service = nh.advertiseService("get_path", send);
   
   ros::spin();
@@ -214,7 +213,7 @@ int BresenhamPlanner(geometry_msgs::Point &a, geometry_msgs::Point &b) {
 /* Dijkstra algorithm for global path planning (i.e. path from starting point to ending point).
  * CONVENTION: the last two elements in the waypoint list are respectively starting and ending points.
  */
-void DijkstraPlanner(int s, vector<vector<int> > &links, vector<int> &path) {
+void DijkstraPlanner(int s, vector<vector<int> > &links) {
   int n = links.size();
   
   vector<bool> visited(n, false);
@@ -249,12 +248,12 @@ void DijkstraPlanner(int s, vector<vector<int> > &links, vector<int> &path) {
   }
 }
 
-void queryPath(int s, int e, vector<int> &path) {
+void queryPath(int s, int e) {
   if (e == s) {
     cerr << s << " ";
     return;
   }
-  queryPath(s, path[e], path);
+  queryPath(s, path[e]);
   cerr << e << " ";
 }
 
@@ -276,7 +275,7 @@ bool send(topological_navigation::Path::Request  &req,topological_navigation::Pa
 
   for(int i = 0; i < path.size(); i++){
     res.path[i] = path[i];
-    ROS_INFO("Sending back reponse [%ld]", res.path[i]);
+    ROS_INFO("Sending back the path [%ld]", res.path[i]);
   }
   return true;
 }
