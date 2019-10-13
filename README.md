@@ -44,6 +44,10 @@ To find the shortest path between the starting and ending point we decided to im
 You can find many informations on this algorithm online :
 
  - https://www-m9.ma.tum.de/graph-algorithms/spp-dijkstra/index_en.html
+ 
+### File : send_data.cpp
+This file helps you to understand how to send the starting and ending point to topological_navigation package and to get the path via rosservice. 
+If you don't use it you can delete it.
 
 ### Sources
  - https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
