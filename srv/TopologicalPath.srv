@@ -1,0 +1,5 @@
+geometry_msgs/Point starting
+geometry_msgs/Point ending
+geometry_msgs/Point[] waypoints
+---
+geometry_msgs/Point[] path
