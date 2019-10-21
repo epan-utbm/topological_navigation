@@ -2,11 +2,8 @@
 #include <ros/ros.h>
 #include <nav_msgs/GetMap.h>
 #include <geometry_msgs/Point.h>
-
-//Rosservice
-#include "topological_navigation/SE_points.h"
-#include "topological_navigation/Path.h"
-
+#include "topological_navigation/TopologicalPath.h"
+#include "topological_navigation/PointArray.h"
 // CPP
 #include <vector>
 #include <yaml-cpp/yaml.h>
@@ -18,20 +15,17 @@ using namespace std;
 int rows_, cols_;
 double mapResolution_;
 vector<vector<int> > grid_;
-vector<int> path;
-geometry_msgs::Point starting, ending;
-vector<geometry_msgs::Point> waypoints;
+string path_finding_algo_;
+vector<geometry_msgs::Point> waypoints_;
 
 bool requestMap(ros::NodeHandle &nh);
 void readMap(const nav_msgs::OccupancyGrid &map);
-bool get(topological_navigation::SE_points::Request  &req,topological_navigation::SE_points::Response &res);
-bool send(topological_navigation::Path::Request  &req,topological_navigation::Path::Response &res);
 void printGrid();
 
-bool getWaypoints(string &filename, vector<geometry_msgs::Point> &waypoints);
+bool getWaypoints(string &filename);
 int BresenhamPlanner(geometry_msgs::Point &a, geometry_msgs::Point &b); // local path planner
-void DijkstraPlanner(int s, vector<vector<int> > &links); // global path planner
-void queryPath(int s, int e);
+void DijkstraPlanner(int s, vector<vector<int> > &links, vector<int> &path); // global path planner
+bool queryPath(topological_navigation::TopologicalPath::Request  &req, topological_navigation::TopologicalPath::Response &res);
 
 int main(int argc, char** argv) {
   ros::init(argc, argv,"topological_navigation");
@@ -43,65 +37,21 @@ int main(int argc, char** argv) {
   }
   //printGrid();
   
+  // Use path-finding algorithms to establish connections between waypoints (i.e. costs)
+  private_nh.param<string>("path_finding_algo", path_finding_algo_, "Bresenham");
   string waypoint_file;
   private_nh.param<string>("waypoint_file", waypoint_file, "");
   
-  
-  
-  if(!waypoint_file.empty()) { // static waypoint list, best for the test
-    if(!getWaypoints(waypoint_file, waypoints)) {
+  if(!waypoint_file.empty()) { // static waypoint list, best for test
+    if(!getWaypoints(waypoint_file)) {
       exit(-1);
     }
   }
-  
-  
-  //Receive the starting and ending via rosservice
-  ros::ServiceServer service = nh.advertiseService("get_points", get);
 
-  // Use path-finding algorithms to establish connections between waypoints (i.e. costs)
-  string path_planning;
-  private_nh.param<string>("path_planning", path_planning, "Bresenham");
-
-  // Building a cost matrix for the Dijkstra algorithm
-  int distance;
-
-  waypoints.push_back(starting);
-  waypoints.push_back(ending);
-  
-  vector<vector<int> > waypoints_link(waypoints.size());
-  for(int i = 0; i < waypoints.size(); i++) {
-
-    for(int j = 0; j < waypoints.size(); j++) {
-      if(j == i) {
-	      waypoints_link[i].push_back(0); // 0 is the cost to itself
-      } else {
-        // TODO: Select different path-finding algorithms by the parameter
-      if(path_planning.compare("Bresenham") == 0) {
-        distance = BresenhamPlanner(waypoints[i], waypoints[j]);
-      } else if(path_planning.compare("Astar") == 0) {
-        // TODO
-      } else if(path_planning.compare("Nathan") == 0) {
-        // TODO
-      }
-      waypoints_link[i].push_back(distance);
-      }
-      if(waypoints_link[i][j] == INT_MAX) {
-	      cerr << "-\t";
-      } else {
-	      cerr << waypoints_link[i][j] << "\t";
-      }
-    }
-    cerr << endl;
-  }
-
-  path.resize(waypoints.size());
-  DijkstraPlanner(waypoints.size()-2, waypoints_link);
-  queryPath(waypoints.size()-2, waypoints.size()-1);
-
-  //Sending back the path via the rosservice
-  ros::ServiceServer path_service = nh.advertiseService("get_path", send);
-  
+  ros::ServiceServer service = nh.advertiseService("topological_path", queryPath);
+  ROS_INFO("Ready to query topological path.");
   ros::spin();
+  
   return 0;
 }
 
@@ -164,7 +114,7 @@ void printGrid() {
   }
 }
 
-bool getWaypoints(string &filename, vector<geometry_msgs::Point> &waypoints) {
+bool getWaypoints(string &filename) {
   if(!filename.empty()) {
     ROS_INFO_STREAM("Loading waypoint file: " << filename);
     YAML::Node node = YAML::LoadFile(filename);
@@ -173,7 +123,7 @@ bool getWaypoints(string &filename, vector<geometry_msgs::Point> &waypoints) {
       p.x = (*it)["pose"]["position"]["x"].as<double>();
       p.y = (*it)["pose"]["position"]["y"].as<double>();
       p.z = (*it)["pose"]["position"]["z"].as<double>();
-      waypoints.push_back(p);
+      waypoints_.push_back(p);
     }
     ROS_INFO_STREAM("Success!");
     return true;
@@ -213,7 +163,7 @@ int BresenhamPlanner(geometry_msgs::Point &a, geometry_msgs::Point &b) {
 /* Dijkstra algorithm for global path planning (i.e. path from starting point to ending point).
  * CONVENTION: the last two elements in the waypoint list are respectively starting and ending points.
  */
-void DijkstraPlanner(int s, vector<vector<int> > &links) {
+void DijkstraPlanner(int s, vector<vector<int> > &links, vector<int> &path) {
   int n = links.size();
   
   vector<bool> visited(n, false);
@@ -248,34 +198,51 @@ void DijkstraPlanner(int s, vector<vector<int> > &links) {
   }
 }
 
-void queryPath(int s, int e) {
-  if (e == s) {
-    cerr << s << " ";
-    return;
+bool queryPath(topological_navigation::TopologicalPath::Request  &req,
+	       topological_navigation::TopologicalPath::Response &res) {
+  if(!req.waypoints.points.empty()) {
+    waypoints_ = req.waypoints.points;
   }
-  queryPath(s, path[e]);
-  cerr << e << " ";
-}
-
-
-bool get(topological_navigation::SE_points::Request  &req,topological_navigation::SE_points::Response &res)
-{
-  starting.x = req.starting.x;  ending.x = req.ending.x;
-  starting.y = req.starting.y;  ending.y = req.ending.y;
-  starting.z = req.starting.z;  ending.z = req.ending.z;
-  ROS_INFO("starting_x = %f   starting_y = %f   starting_z = %f\n",req.starting.x,req.starting.y,req.starting.z);
-
-  return true;
-}
-
-bool send(topological_navigation::Path::Request  &req,topological_navigation::Path::Response &res)
-{
-
-  res.path.resize(path.size());
-
-  for(int i = 0; i < path.size(); i++){
-    res.path[i] = path[i];
-    ROS_INFO("Sending back the path [%ld]", res.path[i]);
+  waypoints_.push_back(req.starting);
+  waypoints_.push_back(req.ending);
+  
+  // Building a cost matrix for the Dijkstra algorithm
+  int distance;
+  vector<vector<int> > waypoints_link(waypoints_.size());
+  for(int i = 0; i < waypoints_.size(); i++) {
+    for(int j = 0; j < waypoints_.size(); j++) {
+      if(j == i) {
+  	waypoints_link[i].push_back(0); // 0 is the cost to itself
+      } else {
+  	// TODO: Select different path-finding algorithms by the parameter
+  	if(path_finding_algo_.compare("Bresenham") == 0) {
+  	  distance = BresenhamPlanner(waypoints_[i], waypoints_[j]);
+  	} else if(path_finding_algo_.compare("Astar") == 0) {
+  	  // TODO
+  	} else if(path_finding_algo_.compare("Nathan") == 0) {
+  	  // TODO
+  	}
+  	waypoints_link[i].push_back(distance);
+      }
+      // if(waypoints_link[i][j] == INT_MAX) {
+      // 	cerr << "-\t";
+      // } else {
+      // 	cerr << waypoints_link[i][j] << "\t";
+      // }
+    }
+    // cerr << endl;
   }
+  
+  vector<int> path_id(waypoints_.size());
+  DijkstraPlanner(waypoints_.size()-2, waypoints_link, path_id);
+  
+  topological_navigation::PointArray path;
+  int end = waypoints_.size()-1;
+  while(end != waypoints_.size()-2) {
+    path.points.push_back(waypoints_[end]);
+    end = path_id[end];
+  }
+  res.path = path;
+  
   return true;
 }

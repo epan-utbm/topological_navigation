@@ -1,5 +1,5 @@
 geometry_msgs/Point starting
 geometry_msgs/Point ending
-geometry_msgs/Point[] waypoints
+topological_navigation/PointArray waypoints
 ---
-geometry_msgs/Point[] path
+topological_navigation/PointArray path
