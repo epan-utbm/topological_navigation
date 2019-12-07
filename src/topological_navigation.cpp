@@ -35,7 +35,6 @@ int main(int argc, char** argv) {
   if(!requestMap(nh)) {
     exit(-1);
   }
-  //printGrid();
   
   // Use path-finding algorithms to establish connections between waypoints (i.e. costs)
   private_nh.param<string>("path_finding_algo", path_finding_algo_, "Bresenham");
