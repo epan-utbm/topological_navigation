@@ -47,7 +47,6 @@ You can find many informations on this algorithm online :
  
 ### File : send_data.cpp
 This file helps you to understand how to send the starting and ending point to topological_navigation package and to get the path via rosservice. 
-If you don't use it you can delete it.
 
 ### Sources
  - https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
