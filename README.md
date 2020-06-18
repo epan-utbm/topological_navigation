@@ -7,7 +7,9 @@
 
 To launch the package you have to open 3 terminals:
  1.`$ roscore`
+ 
  2.`$ roslaunch topological_navigation topological_navigation.launch`
+ 
  3.`$ rosrun topological_navigation send_data`
  
 ## How it works
