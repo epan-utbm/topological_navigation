@@ -14,7 +14,7 @@ To launch the package you have to open 3 terminals:
 3.`$ rosrun topological_navigation send_data`
  
 ## How it works
-The goal of this package is to define waypoints in your map via waypoints generator package [https://github.com/epan-utbm/waypoint_generator].
+The goal of this package is to define waypoints in your map via waypoints generator package [https://github.com/epan-utbm/waypoint_generator](https://github.com/epan-utbm/waypoint_generator).
 
 When you are done with that you can move on the topological_navigation package which is a service. 
 To make it works you have to send the starting and ending point and the waypoints you have created to it.
@@ -49,7 +49,7 @@ To solve it we though about few possiblities :
 To find the shortest path between the starting and ending point we decided to implement Dijkstra algorithm.
 You can find many informations on this algorithm online :
 
- - https://www-m9.ma.tum.de/graph-algorithms/spp-dijkstra/index_en.html
+ - [https://www-m9.ma.tum.de/graph-algorithms/spp-dijkstra/index_en.html](https://www-m9.ma.tum.de/graph-algorithms/spp-dijkstra/index_en.html)
  
 ## File: send_data.cpp
 This file helps you to understand how to send the starting and ending point to topological_navigation package and to get the path via rosservice. 
